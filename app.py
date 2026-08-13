@@ -155,7 +155,7 @@ cols = st.columns(5)
 
 for i, (_, movie) in enumerate(sample_movies.iterrows()):
 
-    with cols[i%5]:
+    with cols[i % 5]:
 
         if movie["poster_url"]:
             st.image(
@@ -165,19 +165,18 @@ for i, (_, movie) in enumerate(sample_movies.iterrows()):
 
         st.markdown(
             f"""
-<div class="movie-card">
-    <div class="movie-title">
-        {movie['title']}
-    </div>
-    <div class="movie-genre">
-        {movie['genres'].replace("|", " · ")}
-    </div>
-</div>
-""",
+            <div class="movie-title">
+                {movie['title']}
+            </div>
+
+            <div class="movie-genre">
+                {movie['genres'].replace("|", " · ")}
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
-        st.selectbox(
+        rating = st.selectbox(
             "평점",
             ["안 봤어요", 1, 2, 3, 4, 5],
             key=f"rating_{movie['movieId']}",
@@ -185,10 +184,6 @@ for i, (_, movie) in enumerate(sample_movies.iterrows()):
         )
 
         user_ratings[movie["movieId"]] = rating
-
-
-
-st.divider()
 
 
 # --------------------------------------------------
