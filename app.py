@@ -44,6 +44,41 @@ st.markdown("""
     overflow: hidden;
 }
 
+.movie-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 10px 4px 20px 4px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.movie-item {
+    flex: 0 0 150px;
+    width: 150px;
+    scroll-snap-align: start;
+}
+
+.movie-poster {
+    width: 150px;
+    height: 225px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.movie-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 8px;
+    line-height: 1.3;
+}
+
+.movie-genre {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -120,7 +155,7 @@ cols = st.columns(5)
 
 for i, (_, movie) in enumerate(sample_movies.iterrows()):
 
-    with cols[i % 5]:
+    with cols[i%5]:
 
         if movie["poster_url"]:
             st.image(
@@ -142,7 +177,7 @@ for i, (_, movie) in enumerate(sample_movies.iterrows()):
             unsafe_allow_html=True
         )
 
-        rating = st.selectbox(
+        st.selectbox(
             "평점",
             ["안 봤어요", 1, 2, 3, 4, 5],
             key=f"rating_{movie['movieId']}",
@@ -202,30 +237,37 @@ if st.button(
         "Movies picked for you"
     )
 
+    st.markdown('<div class="movie-row">', unsafe_allow_html=True)
 
     for _, movie in recommendations.iterrows():
 
-        col1, col2 = st.columns([1, 3])
+        st.markdown(
+            f"""
+            <div class="movie-item">
 
-        with col1:
-            if movie["poster_url"]:
-                st.image(
-                    movie["poster_url"],
-                    use_container_width=True
-                )
+                <img
+                    class="movie-poster"
+                    src="{movie['poster_url']}"
+                >
 
-        with col2:
-            st.markdown(
-                f"""
-                **{movie['title']}**
+                <div class="movie-title">
+                    {movie['title']}
+                </div>
 
-                {movie['genres']}  
+                <div class="movie-genre">
+                    {movie['genres'].replace("|", " · ")}
+                </div>
 
-                예상 평점 ⭐ **{movie['predicted_rating']:.2f}**
-                """
-            )
+                <div style="margin-top: 6px;">
+                    ⭐ {movie['predicted_rating']:.2f}
+                </div>
 
-        st.divider()
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    st.markdown('</div>', unsafe_allow_html=True)
+        
 
 
     # --------------------------------------------------
