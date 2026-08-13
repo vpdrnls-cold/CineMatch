@@ -19,64 +19,38 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-.movie-card {
-    height: 150px;
-    padding: 18px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background-color: rgba(255,255,255,0.03);
-    margin-bottom: 8px;
-    box-sizing: border-box;
-}
-
 .movie-title {
-    height: 52px; 
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 600;
-    line-height: 1.5;
-    overflow: hidden;
-
-.movie-genre {
-    height: 38px;
-    font-size: 13px;
-    color: #999;
-    line-height: 1.4;
-    overflow: hidden;
-}
-
-.movie-row {
-    display: flex;
-    overflow-x: auto;
-    gap: 16px;
-    padding: 10px 4px 20px 4px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-}
-
-.movie-item {
-    flex: 0 0 150px;
-    width: 150px;
-    scroll-snap-align: start;
-}
-
-.movie-poster {
-    width: 150px;
-    height: 225px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.movie-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-top: 8px;
     line-height: 1.3;
+    margin-top: 8px;
 }
 
 .movie-genre {
-    font-size: 11px;
-    color: #888;
+    font-size: 12px;
+    color: #999;
+    line-height: 1.3;
     margin-top: 4px;
+}
+
+/* 영화 가로 스크롤 */
+.st-key-movie-row > div {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+.st-key-movie-row [data-testid="stHorizontalBlock"] {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 16px !important;
+    padding-bottom: 12px;
+}
+
+.st-key-movie-row [data-testid="stHorizontalBlock"] > div {
+    flex: 0 0 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
 }
 
 </style>
@@ -151,39 +125,44 @@ st.subheader("MOVIE TASTE PROFILE")
 
 user_ratings = {}
 
-cols = st.columns(5)
+with st.container(
+    horizontal=True,
+    horizontal_alignment="left",
+    gap="small",
+    key="movie-row"
+):
 
-for i, (_, movie) in enumerate(sample_movies.iterrows()):
+    for _, movie in sample_movies.iterrows():
 
-    with cols[i % 5]:
+        with st.container(width=150):
 
-        if movie["poster_url"]:
-            st.image(
-                movie["poster_url"],
-                use_container_width=True
+            if movie["poster_url"]:
+                st.image(
+                    movie["poster_url"],
+                    width=150
+                )
+
+            st.markdown(
+                f"""
+                <div class="movie-title">
+                    {movie['title']}
+                </div>
+
+                <div class="movie-genre">
+                    {movie['genres'].replace("|", " · ")}
+                </div>
+                """,
+                unsafe_allow_html=True
             )
 
-        st.markdown(
-            f"""
-            <div class="movie-title">
-                {movie['title']}
-            </div>
+            rating = st.selectbox(
+                "평점",
+                ["안 봤어요", 1, 2, 3, 4, 5],
+                key=f"rating_{movie['movieId']}",
+                label_visibility="collapsed"
+            )
 
-            <div class="movie-genre">
-                {movie['genres'].replace("|", " · ")}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        rating = st.selectbox(
-            "평점",
-            ["안 봤어요", 1, 2, 3, 4, 5],
-            key=f"rating_{movie['movieId']}",
-            label_visibility="collapsed"
-        )
-
-        user_ratings[movie["movieId"]] = rating
+            user_ratings[movie["movieId"]] = rating
 
 
 # --------------------------------------------------
@@ -234,33 +213,39 @@ if st.button(
 
     st.markdown('<div class="movie-row">', unsafe_allow_html=True)
 
-    for _, movie in recommendations.iterrows():
+    with st.container(
+        horizontal=True,
+        horizontal_alignment="left",
+        gap="small",
+        key="recommendation-row"
+    ):
 
-        st.markdown(
-            f"""
-            <div class="movie-item">
+        for _, movie in recommendations.iterrows():
 
-                <img
-                    class="movie-poster"
-                    src="{movie['poster_url']}"
-                >
+            with st.container(width=150):
 
-                <div class="movie-title">
-                    {movie['title']}
-                </div>
+                if movie["poster_url"]:
+                    st.image(
+                        movie["poster_url"],
+                        width=150
+                    )
 
-                <div class="movie-genre">
-                    {movie['genres'].replace("|", " · ")}
-                </div>
+                st.markdown(
+                    f"""
+                    <div class="movie-title">
+                        {movie['title']}
+                    </div>
 
-                <div style="margin-top: 6px;">
-                    ⭐ {movie['predicted_rating']:.2f}
-                </div>
+                    <div class="movie-genre">
+                        {movie['genres'].replace("|", " · ")}
+                    </div>
 
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+                    <div style="margin-top: 6px;">
+                        ⭐ {movie['predicted_rating']:.2f}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
     st.markdown('</div>', unsafe_allow_html=True)
         
 
