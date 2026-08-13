@@ -13,7 +13,9 @@ TMDB_API_TOKEN = os.getenv("TMDB_API_TOKEN")
 
 if not TMDB_API_TOKEN:
     TMDB_API_TOKEN = st.secrets["TMDB_API_TOKEN"]
-    
+
+TMDB_API_TOKEN = str(TMDB_API_TOKEN).strip()
+
 BASE_URL = "https://api.themoviedb.org/3"
 IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
 
@@ -26,7 +28,8 @@ def get_poster_url(tmdb_id):
     url = f"{BASE_URL}/movie/{int(tmdb_id)}"
 
     headers = {
-        "Authorization": f"Bearer {TMDB_API_TOKEN}"
+        "Authorization": f"Bearer {TMDB_API_TOKEN}",
+        "accept": "application/json"
     }
 
     response = requests.get(
