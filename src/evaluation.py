@@ -59,6 +59,7 @@ def evaluate_precision_at_k(
         train_movie_data,
         user_similarity_df,
         movies,
+        links,
         top_k=10,
         threshold=4.0,
         neighbor_k=5

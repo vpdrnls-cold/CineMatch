@@ -42,6 +42,44 @@ def weighted_average(group):
         / group['similarity'].sum()
     )
 
+def build_recommendations(
+    candidate_movies,
+    movies,
+    links,
+    top_n=10
+):
+    # 예상 평점 계산
+    predicted_ratings = (
+        candidate_movies
+        .groupby("movieId")
+        .apply(weighted_average)
+        .sort_values(ascending=False)
+    )
+
+    # 영화 정보와 결합
+    recommendations = (
+        predicted_ratings
+        .reset_index(name="predicted_rating")
+        .merge(movies, on="movieId")
+        .merge(
+            links[["movieId", "tmdbId"]],
+            on="movieId",
+            how="left"
+        )
+        .sort_values(
+            by="predicted_rating",
+            ascending=False
+        )
+    )
+
+    # 포스터 URL 생성
+    recommendations["poster_url"] = (
+        recommendations["tmdbId"]
+        .apply(get_poster_url)
+    )
+
+    return recommendations.head(top_n)
+
 #영화 추천
 def recommend_movies(
         user_id,
@@ -89,41 +127,13 @@ def recommend_movies(
         similar_users
     )
 
-    #예상 평점 계산
-    predicted_ratings = (
-        candidate_movies
-        .groupby('movieId')
-        .apply(weighted_average)
-        .sort_values(ascending=False)
+    return build_recommendations(
+        candidate_movies,
+        movies,
+        links,
+        top_n
     )
-
-    #추천 결과 생성
-    recommendations = (
-        predicted_ratings
-        .reset_index(name="predicted_rating")
-        .merge(movies, on="movieId")
-        .merge(
-            links[["movieId", "tmdbId"]],
-            on="movieId",
-            how="left"
-        )
-        .sort_values(
-            by="predicted_rating",
-            ascending=False
-        )
-    )
-
-    recommendations["poster_url"] = (
-        recommendations["tmdbId"]
-        .apply(get_poster_url)
-    )
-
-    recommendations = recommendations[
-        ["title", "genres", "predicted_rating", "poster_url"]
-    ]
-
-    return recommendations.head(top_n)
-    
+        
 def recommend_movies_for_new_user(
     user_profile,
     ratings,
@@ -134,21 +144,7 @@ def recommend_movies_for_new_user(
     neighbor_k=5,
     threshold=3.5
 ):
-    """
-    새로운 사용자의 영화 평점을 기반으로 영화를 추천한다.
-
-    user_profile:
-        새로운 사용자의 평점 정보
-        movieId, title, rating
-
-    ratings:
-        기존 사용자들의 전체 평점 데이터
-
-    similarities:
-        새로운 사용자와 기존 사용자 간 similarity
-        index = userId
-    """
-
+    
     # 1. 가장 유사한 사용자 Top K 선택
     similar_users = similarities.head(neighbor_k)
 
@@ -195,37 +191,9 @@ def recommend_movies_for_new_user(
         similar_users
     )
 
-    # 7. 예상 평점 계산
-    predicted_ratings = (
-        candidate_movies
-        .groupby("movieId")
-        .apply(weighted_average)
-        .sort_values(ascending=False)
-    )
-
-    # 8. 영화 정보와 결합
-    recommendations = (
-        predicted_ratings
-        .reset_index(name="predicted_rating")
-        .merge(movies, on="movieId")
-        .merge(
-            links[["movieId", "tmdbId"]],
-            on="movieId",
-            how="left"
-        )
-        .sort_values(
-            by="predicted_rating",
-            ascending=False
-        )
-    )
-
-    recommendations["poster_url"] = (
-        recommendations["tmdbId"].apply(get_poster_url)
-    )
-
-    recommendations = recommendations[
-        ["title", "genres", "predicted_rating", "poster_url"]
-    ]
-
-    return recommendations.head(top_n)
-
+    return build_recommendations(
+    candidate_movies,
+    movies,
+    links,
+    top_n
+)

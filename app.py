@@ -7,59 +7,139 @@ from src.recommend import recommend_movies_for_new_user
 from src.tmdb import get_poster_url
 
 
-# --------------------------------------------------
+# ==================================================
 # Page configuration
-# --------------------------------------------------
+# ==================================================
 
 st.set_page_config(
     page_title="CineMatch",
     page_icon="🎬",
     layout="wide"
 )
-st.markdown("""
-<style>
-
-.movie-title {
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.3;
-    margin-top: 8px;
-}
-
-.movie-genre {
-    font-size: 12px;
-    color: #999;
-    line-height: 1.3;
-    margin-top: 4px;
-}
-
-/* 영화 가로 스크롤 */
-.st-key-movie-row > div {
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-}
-
-.st-key-movie-row [data-testid="stHorizontalBlock"] {
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    gap: 16px !important;
-    padding-bottom: 12px;
-}
-
-.st-key-movie-row [data-testid="stHorizontalBlock"] > div {
-    flex: 0 0 150px !important;
-    min-width: 150px !important;
-    max-width: 150px !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
 
 
-# --------------------------------------------------
+# ==================================================
+# Custom CSS
+# ==================================================
+
+st.markdown(
+    """
+    <style>
+
+    /* ---------------------------------------------
+       Movie title
+    --------------------------------------------- */
+
+    .movie-title {
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-top: 8px;
+        height: 39px;
+        overflow: hidden;
+    }
+
+    .movie-genre {
+        font-size: 12px;
+        color: #999;
+        line-height: 1.3;
+        margin-top: 4px;
+        height: 32px;
+        overflow: hidden;
+    }
+
+
+    /* ---------------------------------------------
+       Movie rows
+    --------------------------------------------- */
+
+    .st-key-movie-row,
+    .st-key-recommendation-row {
+
+        width: 100% !important;
+        max-width: 100% !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        padding-bottom: 15px;
+    }
+
+
+    .st-key-movie-row > div,
+    .st-key-recommendation-row > div {
+
+        display: flex !important;
+
+        flex-wrap: nowrap !important;
+
+        width: max-content !important;
+        max-width: none !important;
+
+        gap: 16px !important;
+    }
+
+
+    .st-key-movie-row [data-testid="stHorizontalBlock"],
+    .st-key-recommendation-row [data-testid="stHorizontalBlock"] {
+
+        display: flex !important;
+
+        flex-wrap: nowrap !important;
+
+        width: max-content !important;
+        max-width: none !important;
+
+        overflow: visible !important;
+
+        gap: 16px !important;
+    }
+
+
+    .st-key-movie-row [data-testid="stHorizontalBlock"] > div,
+    .st-key-recommendation-row [data-testid="stHorizontalBlock"] > div {
+
+        flex: 0 0 150px !important;
+
+        width: 150px !important;
+        min-width: 150px !important;
+        max-width: 150px !important;
+    }
+
+
+    /* ---------------------------------------------
+       Scrollbar
+    --------------------------------------------- */
+
+    .st-key-movie-row::-webkit-scrollbar,
+    .st-key-recommendation-row::-webkit-scrollbar {
+
+        height: 8px;
+    }
+
+    .st-key-movie-row::-webkit-scrollbar-thumb,
+    .st-key-recommendation-row::-webkit-scrollbar-thumb {
+
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 10px;
+    }
+
+    .st-key-movie-row::-webkit-scrollbar-track,
+    .st-key-recommendation-row::-webkit-scrollbar-track {
+
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# ==================================================
 # Header
-# --------------------------------------------------
+# ==================================================
 
 st.title("CineMatch")
 
@@ -75,28 +155,29 @@ st.markdown(
 )
 
 
-# --------------------------------------------------
+# ==================================================
 # Load data
-# --------------------------------------------------
+# ==================================================
 
 ratings, movies, tags, links = load_data()
 
 
-# --------------------------------------------------
+# ==================================================
 # Select movies
-# --------------------------------------------------
+# ==================================================
 
 if (
     "sample_movies" not in st.session_state
     or "poster_url" not in st.session_state.sample_movies.columns
 ):
-    
+
     sample_movies = get_random_movies(
         movies,
         ratings,
         n=10
     ).copy()
 
+    # MovieLens movieId → TMDB movieId
     sample_movies["tmdbId"] = (
         sample_movies["movieId"]
         .map(
@@ -104,6 +185,7 @@ if (
         )
     )
 
+    # TMDB poster URL
     sample_movies["poster_url"] = (
         sample_movies["tmdbId"]
         .apply(get_poster_url)
@@ -111,19 +193,25 @@ if (
 
     st.session_state.sample_movies = sample_movies
 
+
 sample_movies = st.session_state.sample_movies
 
+
+# ==================================================
+# Movie Taste Profile
+# ==================================================
 
 st.divider()
 
 st.subheader("MOVIE TASTE PROFILE")
 
 
-# --------------------------------------------------
+# ==================================================
 # Rating input
-# --------------------------------------------------
+# ==================================================
 
 user_ratings = {}
+
 
 with st.container(
     horizontal=True,
@@ -136,12 +224,15 @@ with st.container(
 
         with st.container(width=150):
 
+            # Poster
             if movie["poster_url"]:
+
                 st.image(
                     movie["poster_url"],
                     width=150
                 )
 
+            # Title / Genre
             st.markdown(
                 f"""
                 <div class="movie-title">
@@ -155,6 +246,7 @@ with st.container(
                 unsafe_allow_html=True
             )
 
+            # Rating
             rating = st.selectbox(
                 "평점",
                 ["안 봤어요", 1, 2, 3, 4, 5],
@@ -165,9 +257,9 @@ with st.container(
             user_ratings[movie["movieId"]] = rating
 
 
-# --------------------------------------------------
+# ==================================================
 # Recommendation button
-# --------------------------------------------------
+# ==================================================
 
 if st.button(
     "Find My Matches →",
@@ -175,15 +267,53 @@ if st.button(
     use_container_width=True
 ):
 
+    # Count rated movies
+    rated_movies = sum(
+        rating != "안 봤어요"
+        for rating in user_ratings.values()
+    )
+
+    if rated_movies < 3:
+
+        st.warning(
+            "최소 3편 이상의 영화에 평점을 남겨주세요."
+        )
+
+        st.stop()
+
+
+    # --------------------------------------------------
+    # Create new user profile
+    # --------------------------------------------------
+
     user_profile = create_user_profile(
         sample_movies,
         user_ratings
     )
 
+
+    # --------------------------------------------------
+    # Calculate similarity
+    # --------------------------------------------------
+
     similarities = calculate_new_user_similarity(
         user_profile,
         ratings
     )
+
+    if similarities.empty:
+
+        st.warning(
+            "평가한 영화와 공통으로 평가한 영화가 충분한 사용자를 "
+            "찾지 못했어. 다른 영화에 평점을 남겨 다시 시도해봐."
+        )
+
+        st.stop()
+
+
+    # --------------------------------------------------
+    # Generate recommendations
+    # --------------------------------------------------
 
     recommendations = recommend_movies_for_new_user(
         user_profile=user_profile,
@@ -197,21 +327,43 @@ if st.button(
     )
 
 
+    if recommendations.empty:
+
+        st.warning(
+            "현재 평점 조합으로는 추천할 영화를 찾지 못했습니다. "
+            "다른 영화에 평점을 남겨 다시 시도해주세요."
+        )
+
+        st.stop()
+
+
     # --------------------------------------------------
-    # Results
+    # Save recommendation results
     # --------------------------------------------------
+
+    st.session_state.recommendations = recommendations
+
+    # 새로운 추천을 만들었으므로 이전 Pick 제거
+    if "picked_movie" in st.session_state:
+        del st.session_state.picked_movie
+
+
+# ==================================================
+# Recommendation Results
+# ==================================================
+
+if "recommendations" in st.session_state:
+
+    recommendations = st.session_state.recommendations
 
     st.divider()
 
-    st.subheader("YOUR PICKS")
+    st.subheader("YOUR RECOMMENDATIONS")
 
-    st.markdown("### YOUR RECOMMENDATIONS")
 
-    st.write(
-        "Movies picked for you"
-    )
-
-    st.markdown('<div class="movie-row">', unsafe_allow_html=True)
+    # --------------------------------------------------
+    # Recommendation cards
+    # --------------------------------------------------
 
     with st.container(
         horizontal=True,
@@ -224,12 +376,15 @@ if st.button(
 
             with st.container(width=150):
 
+                # Poster
                 if movie["poster_url"]:
+
                     st.image(
                         movie["poster_url"],
                         width=150
                     )
 
+                # Title / Genre / Predicted rating
                 st.markdown(
                     f"""
                     <div class="movie-title">
@@ -246,26 +401,69 @@ if st.button(
                     """,
                     unsafe_allow_html=True
                 )
-    st.markdown('</div>', unsafe_allow_html=True)
-        
+
+
+    # ==================================================
+    # Pick My Movie
+    # ==================================================
+
+    st.divider()
+
+    st.subheader("🍿 PICK MY MOVIE")
+
+    st.write(
+        "Can't decide? Let CineMatch pick one for you."
+    )
+
+
+    if st.button(
+        "🎲 Pick a Movie",
+        use_container_width=True
+    ):
+
+        picked_movie = recommendations.sample(
+            n=1
+        ).iloc[0]
+
+        st.session_state.picked_movie = picked_movie
 
 
     # --------------------------------------------------
-    # Detailed information
+    # Show picked movie
     # --------------------------------------------------
 
-    with st.expander("추천 시스템 상세 정보"):
+    if "picked_movie" in st.session_state:
 
-        st.subheader("🔎 유사 사용자")
+        picked_movie = st.session_state.picked_movie
 
-        st.dataframe(
-            similarities.head(10),
-            use_container_width=True
-        )
+        st.markdown("### 🎬 Tonight's Pick")
 
-        st.subheader("🎯 사용자 프로필")
+        col1, col2 = st.columns([1, 2])
 
-        st.dataframe(
-            user_profile,
-            use_container_width=True
-        )
+        with col1:
+
+            if picked_movie["poster_url"]:
+
+                st.image(
+                    picked_movie["poster_url"],
+                    width=200
+                )
+
+        with col2:
+
+            st.markdown(
+                f"## {picked_movie['title']}"
+            )
+
+            st.write(
+                picked_movie["genres"].replace("|", " · ")
+            )
+
+            st.write(
+                f"⭐ Predicted rating: "
+                f"**{picked_movie['predicted_rating']:.2f}**"
+            )
+
+            st.caption(
+                "Picked randomly from your recommendations."
+            )
