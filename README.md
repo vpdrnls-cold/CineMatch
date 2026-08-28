@@ -23,35 +23,35 @@ CineMatch는 사용자가 몇 편의 영화를 평가하면, **MovieLens의 기�
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-* 🎯 **Personalized Recommendation**
+* **Personalized Recommendation**
 
   * 사용자의 영화 평가를 기반으로 개인화된 추천 제공
 
-* 👥 **New User Recommendation**
+* **New User Recommendation**
 
   * 기존 사용자 데이터만으로 새로운 사용자의 취향과 유사한 사용자를 탐색
 
-* 📐 **Cosine Similarity**
+* **Cosine Similarity**
 
   * 사용자가 공통으로 평가한 영화들의 평점을 이용해 사용자 간 유사도 계산
 
-* ⭐ **Weighted Rating Prediction**
+* **Weighted Rating Prediction**
 
   * 유사 사용자의 평점에 유사도를 가중치로 적용해 영화별 예상 평점 계산
 
-* 🖼️ **TMDB Poster Integration**
+* **TMDB Poster Integration**
 
   * TMDB API를 활용해 추천 영화의 포스터를 표시
 
-* 📱 **Streamlit Web UI**
+* **Streamlit Web UI**
 
   * 영화 선택부터 추천 결과까지 웹 인터페이스에서 바로 확인
 
 ---
 
-## 🧠 Recommendation Algorithm
+## Recommendation Algorithm
 
 ### 1. User Profile
 
@@ -106,7 +106,7 @@ $$
 
 ---
 
-## 📊 Dataset
+## Dataset
 
 CineMatch는 **MovieLens ml-latest-small** 데이터셋을 사용함.
 
@@ -126,7 +126,7 @@ CineMatch는 **MovieLens ml-latest-small** 데이터셋을 사용함.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 * **Python**
 * **Pandas** - 데이터 처리 및 전처리
@@ -138,7 +138,7 @@ CineMatch는 **MovieLens ml-latest-small** 데이터셋을 사용함.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 CineMatch/
@@ -201,7 +201,7 @@ CineMatch/
 
 ---
 
-## 🔍 Evaluation
+## Evaluation
 
 추천 시스템의 성능을 확인하기 위해 데이터를 사용자별로 **Train/Test Set으로 분리**하고, 추천 결과와 실제 사용자가 높은 평점을 준 영화를 비교하는 **Precision@K**를 사용
 
@@ -223,7 +223,7 @@ MovieLens Ratings
 
 ---
 
-## 💡 What I Learned
+## What I Learned
 
 이 프로젝트를 통해 단순한 데이터 분석을 넘어 **추천 시스템의 전체적인 흐름**구현
 
@@ -238,7 +238,7 @@ MovieLens Ratings
 
 ---
 
-## 🚀 Run Locally
+## Run Locally
 
 ### 1. Clone Repository
 
@@ -271,7 +271,7 @@ streamlit run app.py
 
 ---
 
-## 📌 Future Improvements
+## Future Improvements
 
 현재 시스템은 **사용자 기반 협업 필터링(User-Based Collaborative Filtering)**을 중심으로 구현되어 있음
 
@@ -286,7 +286,7 @@ streamlit run app.py
 
 ---
 
-## 📚 References
+## References
 
 * MovieLens Dataset
   GroupLens Research, University of Minnesota
@@ -297,7 +297,7 @@ streamlit run app.py
 
 ---
 
-## 👤 Project
+## Project
 
 **CineMatch**
 Personalized Movie Recommendation System
