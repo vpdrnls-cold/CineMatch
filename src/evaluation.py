@@ -35,6 +35,11 @@ def get_actual_movies(test_movie_data, user_id, threshold, movies):
 
 #Precision@k 계산
 def precision_at_k(recommended_movies, actual_movies, top_k):
+
+    #top_k가 0이면 나눗셈 에러가 나므로 0으로 처리
+    if top_k == 0:
+        return 0.0
+    
     #영화제목만 추출
     recommended_titles = set(
         recommended_movies["title"]
@@ -99,6 +104,10 @@ def evaluate_precision_at_k(
         )
 
         precision_scores.append(precision)
+
+    #평가할 사용자가 없으면 나눗셈 에러가 나므로 0으로 처리
+    if not precision_scores:
+        return 0.0
 
     #전체 사용자 평균 Precision@K 
     mean_precision = sum(precision_scores) / len(precision_scores)

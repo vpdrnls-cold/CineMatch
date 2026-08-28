@@ -5,10 +5,17 @@ from pathlib import Path
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
 def load_data():
-    ratings = pd.read_csv(DATA_DIR / "ratings.csv")
-    movies = pd.read_csv(DATA_DIR / "movies.csv")
-    tags = pd.read_csv(DATA_DIR / "tags.csv")
-    links = pd.read_csv(DATA_DIR / "links.csv")
+    try:
+        ratings = pd.read_csv(DATA_DIR / "ratings.csv")
+        movies = pd.read_csv(DATA_DIR / "movies.csv")
+        tags = pd.read_csv(DATA_DIR / "tags.csv")
+        links = pd.read_csv(DATA_DIR / "links.csv")
+    except FileNotFoundError as e :
+        raise FileNotFoundError(
+            f"데이터 파일을 찾을 수 없습니다: {e}. "
+            f"'{DATA_DIR}' 경로에 movies.csv, ratings.csv, tags.csv, "
+            f"links.csv 파일이 있는지 확인하세요."
+        ) from e
 
     ratings.drop(columns=['timestamp'], inplace=True)
 

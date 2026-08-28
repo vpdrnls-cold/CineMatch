@@ -16,7 +16,10 @@ def get_random_movies(movies, ratings, n=10, min_ratings=50):
         movies["movieId"].isin(popular_movies["movieId"])
     ]
 
-    return candidate_movies.sample(n=n)
+    #실제 존재하는 개수만큼만 뽑도록 제한
+    sample_size = min(n, len(candidate_movies))
+
+    return candidate_movies.sample(n=sample_size)
 
 
 def create_user_profile(sample_movies, user_ratings):

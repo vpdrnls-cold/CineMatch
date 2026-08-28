@@ -1,3 +1,5 @@
+import pandas as pd
+
 from .similarity import find_similar_users
 from src.tmdb import get_poster_url
 
@@ -37,9 +39,14 @@ def add_similarity(candidate_movies, similar_users):
 
 #가중평균 계산
 def weighted_average(group):
+    similarity_sum = group['similarity'].sum()
+
+    if similarity_sum == 0:
+        return 0
+
     return(
-        (group['rating'] * group['similarity']).sum() 
-        / group['similarity'].sum()
+        (group['rating'] * group['similarity']).sum()
+        / similarity_sum
     )
 
 def build_recommendations(
@@ -48,6 +55,13 @@ def build_recommendations(
     links,
     top_n=10
 ):
+    #추천 후보가 없으면 예상 평점 계산 없이 빈 결과를 반환
+    if candidate_movies.empty:
+        empty_columns = list(movies.columns) + [
+            "predicted_rating", "tmdbId", "poster_url"
+        ]
+        return pd.DataFrame(columns=empty_columns)
+    
     # 예상 평점 계산
     predicted_ratings = (
         candidate_movies

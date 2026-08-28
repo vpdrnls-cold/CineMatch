@@ -14,6 +14,9 @@ def calculate_user_similarity(user_movie_matrix_filled):
 
 #유사 사용자 찾기
 def find_similar_users(user_similarity_df, user_id, top_k=10):
+    if user_id not in user_similarity_df.index:
+        return pd.Series(dtype=float)
+    
     similar_users = (
         user_similarity_df.loc[user_id]
         .drop(user_id)
@@ -28,12 +31,10 @@ def calculate_new_user_similarity(
     ratings,
     min_common_movies=3
 ):
-    """
-    새로운 사용자와 기존 사용자들의 Cosine Similarity를 계산한다.
+    # 새로운 사용자와 기존 사용자들의 Cosine Similarity를 계산한다.
 
-    공통으로 평가한 영화가 최소 min_common_movies개 이상인
-    기존 사용자만 유사도 계산에 사용한다.
-    """
+    # 공통으로 평가한 영화가 최소 min_common_movies개 이상인
+    # 기존 사용자만 유사도 계산에 사용한다.
 
     # 새로운 사용자가 실제로 평점을 남긴 영화만 사용
     new_user_ratings = user_profile.dropna(subset=["rating"])
